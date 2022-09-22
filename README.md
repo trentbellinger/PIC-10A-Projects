@@ -21,4 +21,4 @@ Week 9 Project: one-dimensional minesweeper game
 
 Week 10 Project: wordle game using 4-letter words
 
-Final Project: collecting and amnipulating different kinds of data from a file
+Final Project: collecting and manipulating different kinds of data from a file
