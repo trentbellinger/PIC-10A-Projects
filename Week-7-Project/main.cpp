@@ -5,7 +5,6 @@
 
 int main() {
     
-    /*
     // charToDigit
     char c = '8';
     unsigned char cu = charToDigit(c);
@@ -14,43 +13,21 @@ int main() {
     unsigned char ccu = charToDigit(cc);
     std::cout << ccu << '\n';
     std::cout << cu + ccu << '\n';
-     */
     
-    /*
     // digitToChar
     unsigned char c = 8;
     char cc = digitToChar(c);
     std::cout << cc << '\n';
-     */
     
-    /*
     // 1. Try getting this to work first: just uncomment the 3 lines below
     std::string s("example");
     reverseString(s);
     std::cout << s << '\n';
-    */
     
-    /*
     // 2. Trying getting this add function to work and make sure the 2 lines below work.
     std::cout << add("3", "19", 10) << '\n';
     std::cout << add("1", "10", 2) << '\n';
-    */
-    
-    // twoPower
-    // std:: cout << twoPower(100) << '\n';
-    
-    /*
-    // lessThanOrEqual
-    bool b = lessThanOrEqual("107", "106");
-    if (b == true) {
-        std::cout << "true" << '\n';
-    }
-    else {
-        std::cout << "false" << '\n';
-    }
-     */
-    
-    
+       
     // 3. If the above work, write binaryToDecimal and try the block of code
     // below up to but not including item 4.
     
