@@ -1,78 +1,100 @@
-#include "WordRun.h"
+#include "Card.h"
+#include "Range.h"
 
 using namespace std;
 
 int main() {
+    // display introduction to the game
+    cout << "Cards 2-10 are worth their numeric vaule.\n";
+    cout << "J, Q, K have a value of 11.\n";
+    cout << "An A has a value of 12 as a spade and 1 for other suits.\n";
+    cout << "Over 3 rounds, you will try to reach or exceed a target value, without going over 22!\n";
+    cout << "If you go over, you get -1 points; if you are within range, you get +1 points;";
+    cout << " otherwise you get 0 points.\n\n";
 
-	cout << "Enter your name: "; // display command
-	string user_name; // string for the user's name
-	getline(cin, user_name); // user enters their name
-	
-	ifstream iname(user_name + ".txt"); // open the user's file of scores
+    int total_points = 0; // variable for the total points earned by the user
+    const int first_run = 1, last_run = 3; // variables for the first and last run
+    
+    srand(time(nullptr)); // make random numbers random according to the current time
 
-	if (iname.fail()) { // if there is no such file
-		cout << "You have not played before.\n"; // display message
-	}
-	else { // if the user already has a file
-		int max = 0; // value for the user's max score
+    for (int i = first_run; i <= last_run; ++i) { // for loop that runs 3 times
+        // vector of strings for all the faces in the deck
+        vector<string>faces = {"2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"};
+        // vector of strings for all the suits in the deck
+        vector<string>suits = {"Diamonds", "Hearts", "Spades", "Clubs"};
+        
+        vector<Card>all_cards; // vector for all 52 cards in the deck
+        
+        // variables for the sizes of suits and faces vector
+        size_t suits_size = suits.size(), faces_size = faces.size();
 
-		while (!iname.eof()) { // for all numbers in the file
+        for (size_t i = 0; i < suits_size; ++i) { // for every number within the size of the vector of suits
+            string one_suit = suits[i]; // get a string with the suit that has that number
+            
+            for (size_t i = 0; i < faces_size; ++i) { // for every number within the vector of faces
+                string one_face = faces[i]; // get a string with the face that has the number
+                
+                // add a Card to the deck having that suit and face
+                all_cards.push_back( Card(one_suit, one_face) );
+            }
+        }
+        
+        const int max_value = 22, lowest_value = 17; // variable for the max and lowest allowed value of the cards
+        const int inclusive = 1; // variable for making the random number inclusive
+        
+        // get a random number from 17 to 22 inclusive for the lower bound
+        int lower_bound = rand() % (max_value - lowest_value + inclusive) + lowest_value;
+        
+        vector<Card>hand_cards; // create a vector for the hands of cards
+        int total_value = 0; // variable for the total card values for each hand
 
-			int current_score; // the current score under consideration
-			iname >> current_score; // get the score from the file
+        bool more = true; // create bool for the while loop
+        while (more) { // while more is true
+            cout << "Target lower bound: " << lower_bound << '\n'; // display target lower bound
+            
+            Card current_card = dealCard(all_cards); // deal a card from the deck and set it aside
 
-			if (current_score > max) { // if the score is greater than max
-				max = current_score; // set the max to be the score
-			}
-		}
-		// display user's best score
-		cout << "Your best score is " << max << ".\n";
-	}
-	iname.close(); // close the file
-	
-	cout << "Would you like to play? y/n:"; // display question
-	char yesNo; // char for y(yes) or n (no)
-	cin >> yesNo; // user enters y (yes) or n (no)
+            hand_cards.push_back(current_card); // add the selected card to the vector for the hand
 
-	if (yesNo == 'n') { // if the user enters n (no)
-		cout << "goodbye"; // display goodbye
-	}
-	else { // if the user enters y (yes)
-		// display game instructions
-		cout << "Try to guess a 4-letter word. Letters in their rightful place "
-			<< "get a '*'. Letters of the word not in their place get a '~'. "
-			<< "Otherwise, a '-' is displayed.\n";
+            showHand(hand_cards, total_value); // display the hand value and the cards in the hand
 
-		cin.ignore(); // allow for getline to be used again later
+            // create a bool that returns true if the hand value is greater than 22
+            bool exceeds_max = exceeds(max_value, total_value);
+            if (exceeds_max) { // if the hand value exceeds the max
+                total_points -= 1; // subtract 1 from the total amount of points
+                cout << "You got -1 points." << '\n'; // display message
+                break; // end the while loop
+            }
 
-		WordRun game; // begin the game
+            // create a bool that returns true if the hand is within the winning range
+            bool in_range = inRange(lower_bound, max_value, total_value);
+            if (in_range) { // if the hand value is in the winning range
+                total_points += 1; // add 1 to the total amount of points
+                cout << "You got 1 point." << '\n'; // display message
+                break; // end the while loop
+            }
 
-		bool moreTries = true; // bool for if the user gets more tries
-		while (moreTries) { // while the user gets more guesses
+            cout << "Deal more? y/n: "; // ask the user if they want another card
+            char yesNo = ' '; // char for the user input
+            cin >> yesNo; // user inputs y (yes) or n (no)
 
-			string user_guess; // string for the user's guess
-			getline(cin, user_guess); // user inputs their guess
-
-			// input the user's guess into the game
-			game.guess(user_guess);
-
-			if (game.hasWon()) { // if the user's guess is correct
-				moreTries = false; // end the while loop
-
-				/* display message to the user with their number of 
-				guesses, time spent, and score */
-				cout << "You won and responded in " << game.getGuesses() <<
-					" guesses, with a time of " << game.getTime() <<
-					"s, earning a score of " << game.getScore() << ".";
-
-				// open the user's file of scores
-				ofstream oname(user_name + ".txt", ios_base::app);
-				// put the new score into the file
-				oname << game.getScore() << '\n';
-				oname.close(); // close the file
-			}
-		}
-	}
-
-	return 0;
+            if (yesNo == 'n') { // if the user inputs n (no)
+                total_points += 0; // the total amount of points stays the same
+                cout << "You got 0 points." << '\n'; // display message
+                more = false; // set bool more to false to end the while loop
+            }
+        }
+        cout << '\n'; // space between iterations of the for loop
+    }
+    
+    cout << '\n'; // double space before displaying total score
+    
+    if (total_points == 1) { // if the total number of points is 1
+        cout << "Your total score is " << total_points << " point."; // display total score
+    }
+    else { // if the total number of points is not 1
+        cout << "Your total score is " << total_points << " points."; // display total score
+    }
+   
+    return 0; // terminate program
 }
